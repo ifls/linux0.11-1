@@ -69,6 +69,8 @@ int copy_mem (int nr, struct task_struct *p)
 	p->start_code = new_code_base;
 	set_base (p->ldt[1], new_code_base);	// 设置代码段描述符中基址域。
 	set_base (p->ldt[2], new_data_base);	// 设置数据段描述符中基址域。
+
+	// 拷贝页表
 	if (copy_page_tables (old_data_base, new_data_base, data_limit))
     {				// 复制代码和数据段。
 		free_page_tables (new_data_base, data_limit);	// 如果出错则释放申请的内存。
@@ -92,24 +94,27 @@ int copy_process (int nr, long ebp, long edi, long esi, long gs, long none,
 	struct file *f;
 	struct i387_struct *p_i387;
 
-	p = (struct task_struct *) get_free_page ();	// 为新任务数据结构分配内存。
+	p = (struct task_struct *) get_free_page ();	// 为新任务数据结构分配一页内存。
 	if (!p)			// 如果内存分配出错，则返回出错码并退出。
 		return -EAGAIN;
 	task[nr] = p;			// 将新任务结构指针放入任务数组中。
+
 // 其中nr 为任务号，由前面find_empty_process()返回。
+	// 拷贝结构体的值
 	*p = *current;		/* NOTE! this doesn't copy the supervisor stack */
 /* 注意！这样做不会复制超级用户的堆栈 （只复制当前进程内容）。*/ 
 	p->state = TASK_UNINTERRUPTIBLE;	// 将新进程的状态先置为不可中断等待状态。
-	p->pid = last_pid;		// 赋值新进程号。由前面调用find_empty_process()得到。
+	p->pid = last_pid;		// 赋值新进程号。由前面调用find_empty_process()得到, 且已经++过了。
 	p->father = current->pid;	// 设置父进程号。
 	p->counter = p->priority;
 	p->signal = 0;		// 信号位图置0。
-	p->alarm = 0;
+	p->alarm = 0; // 记录下次发送告警的时间
 	p->leader = 0;		/* process leadership doesn't inherit */
 /* 进程的领导权是不能继承的 */
 	p->utime = p->stime = 0;	// 初始化用户态时间和核心态时间。
 	p->cutime = p->cstime = 0;	// 初始化子进程用户态和核心态时间。
 	p->start_time = jiffies;	// 当前滴答数时间。
+
 // 以下设置任务状态段TSS 所需的数据（参见列表后说明）。
 	p->tss.back_link = 0;
 	p->tss.esp0 = PAGE_SIZE + (long) p;	// 堆栈指针（由于是给任务结构p 分配了1 页
@@ -138,8 +143,8 @@ int copy_process (int nr, long ebp, long edi, long esi, long gs, long none,
 	if (last_task_used_math == current)
 	_asm{
 		mov ebx, p_i387
-		clts
-		fnsave [p_i387]
+		clts // 清理CR0中TS位
+		fnsave [p_i387] // 指令fnsave用于把协处理器的所有状态保存到目的操作数指定的内存区域中。
 	}
 //    __asm__ ("clts ; fnsave %0"::"m" (p->tss.i387));
 // 设置新任务的代码和数据段基址、限长并复制页表。如果出错（返回值不是0），则复位任务数组中
@@ -161,6 +166,7 @@ int copy_process (int nr, long ebp, long edi, long esi, long gs, long none,
 		current->root->i_count++;
 	if (current->executable)
 		current->executable->i_count++;
+		
 // 在GDT 中设置新任务的TSS 和LDT 描述符项，数据从task 结构中取。
 // 在任务切换时，任务寄存器tr 由CPU 自动加载。
 	set_tss_desc (gdt + (nr << 1) + FIRST_TSS_ENTRY, &(p->tss));
@@ -178,11 +184,12 @@ int find_empty_process (void)
 repeat:
 	if ((++last_pid) < 0)
 		last_pid = 1;
+	// 已经使用过了这个pid, 就 repeat ++pid 看下一个
 	for (i = 0; i < NR_TASKS; i++)
 		if (task[i] && task[i]->pid == last_pid)
 			goto repeat;
 	for (i = 1; i < NR_TASKS; i++)	// 任务0 排除在外。
-		if (!task[i])
+		if (!task[i]) // 空指针就表示找到了一个位置
 			return i;
 	return -EAGAIN;
 }

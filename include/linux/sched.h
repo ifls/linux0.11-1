@@ -165,13 +165,13 @@ struct task_struct
 	unsigned short uid, euid, suid; // 可执行文件的特殊权限
 	unsigned short gid, egid, sgid;
 
-	long alarm;
+	long alarm; // 记录下次发送告警的时间
 
 	long utime; // 用户态运行时间
 	long stime; // 系统态运行时间
-	long cutime;
-	long cstime;
-	long start_time;
+	long cutime; // child user time
+	long cstime; // child system time
+	long start_time; // 是滴答数不是时间戳
 
 	unsigned short used_math; // 是否使用了协处理器
 							  /* file system info */
