@@ -1,159 +1,158 @@
-/* passed
-* linux/kernel/sys.c
-*
-* (C) 1991 Linus Torvalds
+//// è¯»å–fs æ®µä¸­æŒ‡å®šåœ°å€å¤„çš„å­—èŠ‚ã€‚
+// å‚æ•°ï¼šaddr - æŒ‡å®šçš„å†…å­˜åœ°å€ã€‚
+// %0 - (è¿”å›çš„å­—èŠ‚_v)ï¼›%1 - (å†…å­˜åœ°å€addr)ã€‚
+// è¿”å›ï¼šè¿”å›å†…å­˜fs:[addr]å¤„çš„å­—èŠ‚ã€‚
+extern _inline unsigned char
+get_fs_byte (const char *addr)
+{
+//  unsigned register char _v;
+
+// __asm__ ("movb %%fs:%1,%0": "=r" (_v):"m" (*addr));
+  _asm mov ebx,addr
+  _asm mov al,byte ptr fs:[ebx];
+//  _asm mov _v,al;
+//  return _v;
+}
+
+//// è¯»å–fs æ®µä¸­æŒ‡å®šåœ°å€å¤„çš„å­—ã€‚
+// å‚æ•°ï¼šaddr - æŒ‡å®šçš„å†…å­˜åœ°å€ã€‚
+// %0 - (è¿”å›çš„å­—_v)ï¼›%1 - (å†…å­˜åœ°å€addr)ã€‚
+// è¿”å›ï¼šè¿”å›å†…å­˜fs:[addr]å¤„çš„å­—ã€‚
+extern _inline unsigned short
+get_fs_word (const unsigned short *addr)
+{
+//  unsigned short _v;
+
+//__asm__ ("movw %%fs:%1,%0": "=r" (_v):"m" (*addr));
+  _asm mov ebx,addr
+  _asm mov ax,word ptr fs:[ebx];
+//  _asm mov _v,ax;
+//  return _v;
+}
+
+//// è¯»å–fs æ®µä¸­æŒ‡å®šåœ°å€å¤„çš„é•¿å­—(4 å­—èŠ‚)ã€‚
+// å‚æ•°ï¼šaddr - æŒ‡å®šçš„å†…å­˜åœ°å€ã€‚
+// %0 - (è¿”å›çš„é•¿å­—_v)ï¼›%1 - (å†…å­˜åœ°å€addr)ã€‚
+// è¿”å›ï¼šè¿”å›å†…å­˜fs:[addr]å¤„çš„é•¿å­—ã€‚
+extern _inline unsigned long
+get_fs_long (const unsigned long *addr)
+{
+//  unsigned long _v;
+
+//__asm__ ("movl %%fs:%1,%0": "=r" (_v):"m" (*addr));
+  _asm mov ebx,addr
+  _asm mov eax,dword ptr fs:[ebx];
+//  _asm mov _v,eax;
+//  return _v;
+}
+
+//// å°†ä¸€å­—èŠ‚å­˜æ”¾åœ¨fs æ®µä¸­æŒ‡å®šå†…å­˜åœ°å€å¤„ã€‚
+// å‚æ•°ï¼šval - å­—èŠ‚å€¼ï¼›addr - å†…å­˜åœ°å€ã€‚
+// %0 - å¯„å­˜å™¨(å­—èŠ‚å€¼val)ï¼›%1 - (å†…å­˜åœ°å€addr)ã€‚
+extern _inline void
+put_fs_byte (char val, char *addr)//passed
+{
+//  __asm__ ("movb %0,%%fs:%1"::"r" (val), "m" (*addr));
+	_asm mov ebx,addr
+	_asm mov al,val;
+	_asm mov byte ptr fs:[ebx],al;
+}
+
+//// å°†ä¸€å­—å­˜æ”¾åœ¨fs æ®µä¸­æŒ‡å®šå†…å­˜åœ°å€å¤„ã€‚
+// å‚æ•°ï¼šval - å­—å€¼ï¼›addr - å†…å­˜åœ°å€ã€‚
+// %0 - å¯„å­˜å™¨(å­—å€¼val)ï¼›%1 - (å†…å­˜åœ°å€addr)ã€‚
+extern _inline void
+put_fs_word (short val, short *addr)
+{
+//  __asm__ ("movw %0,%%fs:%1"::"r" (val), "m" (*addr));
+	_asm mov ebx,addr
+	_asm mov ax,val;
+	_asm mov word ptr fs:[ebx],ax;
+}
+
+//// å°†ä¸€é•¿å­—å­˜æ”¾åœ¨fs æ®µä¸­æŒ‡å®šå†…å­˜åœ°å€å¤„ã€‚
+// å‚æ•°ï¼šval - é•¿å­—å€¼ï¼›addr - å†…å­˜åœ°å€ã€‚
+// %0 - å¯„å­˜å™¨(é•¿å­—å€¼val)ï¼›%1 - (å†…å­˜åœ°å€addr)ã€‚
+extern _inline void
+put_fs_long (long val, unsigned long *addr)
+{
+//  __asm__ ("movl %0,%%fs:%1"::"r" (val), "m" (*addr));
+	_asm mov ebx,addr
+	_asm mov eax,val;
+	_asm mov dword ptr fs:[ebx],eax;
+}
+
+/*
+* æ¯”æˆ‘æ›´æ‡‚GNU æ±‡ç¼–çš„äººåº”è¯¥ä»”ç»†æ£€æŸ¥ä¸‹é¢çš„ä»£ç ã€‚è¿™äº›ä»£ç èƒ½ä½¿ç”¨ï¼Œä½†æˆ‘ä¸çŸ¥é“æ˜¯å¦
+* å«æœ‰ä¸€äº›å°é”™è¯¯ã€‚
+* --- TYTï¼Œ1991 å¹´11 æœˆ24 æ—¥
+* [ è¿™äº›ä»£ç æ²¡æœ‰é”™è¯¯ï¼ŒLinus ]
 */
-#include <set_seg.h>
 
-#include <errno.h>		// ´íÎóºÅÍ·ÎÄ¼ş¡£°üº¬ÏµÍ³ÖĞ¸÷ÖÖ³ö´íºÅ¡£(Linus ´Óminix ÖĞÒı½øµÄ)¡£
-
-#include <linux/sched.h>	// µ÷¶È³ÌĞòÍ·ÎÄ¼ş£¬¶¨ÒåÁËÈÎÎñ½á¹¹task_struct¡¢³õÊ¼ÈÎÎñ0 µÄÊı¾İ£¬
-// »¹ÓĞÒ»Ğ©ÓĞ¹ØÃèÊö·û²ÎÊıÉèÖÃºÍ»ñÈ¡µÄÇ¶ÈëÊ½»ã±àº¯ÊıºêÓï¾ä¡£
-#include <linux/tty.h>		// tty Í·ÎÄ¼ş£¬¶¨ÒåÁËÓĞ¹Øtty_io£¬´®ĞĞÍ¨ĞÅ·½ÃæµÄ²ÎÊı¡¢³£Êı¡£
-#include <linux/kernel.h>	// ÄÚºËÍ·ÎÄ¼ş¡£º¬ÓĞÒ»Ğ©ÄÚºË³£ÓÃº¯ÊıµÄÔ­ĞÎ¶¨Òå¡£
-#include <asm/segment.h>	// ¶Î²Ù×÷Í·ÎÄ¼ş¡£¶¨ÒåÁËÓĞ¹Ø¶Î¼Ä´æÆ÷²Ù×÷µÄÇ¶ÈëÊ½»ã±àº¯Êı¡£
-#include <sys/times.h>		// ¶¨ÒåÁË½ø³ÌÖĞÔËĞĞÊ±¼äµÄ½á¹¹tms ÒÔ¼°times()º¯ÊıÔ­ĞÍ¡£
-#include <sys/utsname.h>	// ÏµÍ³Ãû³Æ½á¹¹Í·ÎÄ¼ş¡£
-
-// ·µ»ØÈÕÆÚºÍÊ±¼ä¡£
-int sys_ftime ()
+//// å–fs æ®µå¯„å­˜å™¨å€¼(é€‰æ‹©ç¬¦)ã€‚
+// è¿”å›ï¼šfs æ®µå¯„å­˜å™¨å€¼ã€‚
+extern _inline unsigned short
+get_fs ()
 {
-	return -ENOSYS;
+//  unsigned short _v;
+//__asm__ ("mov %%fs,%%ax": "=a" (_v):);
+  _asm mov ax,fs;
+//  _asm mov _v,ax;
+//  return _v;
 }
 
-//
-int sys_break ()
+//// å–ds æ®µå¯„å­˜å™¨å€¼ã€‚
+// è¿”å›ï¼šds æ®µå¯„å­˜å™¨å€¼ã€‚
+extern _inline unsigned short
+get_ds ()
 {
-	return -ENOSYS;
+//  unsigned short _v;
+//__asm__ ("mov %%ds,%%ax": "=a" (_v):);
+  _asm mov ax,fs;
+//  _asm mov _v,ax;
+//  return _v;
 }
 
-// ÓÃÓÚµ±Ç°½ø³Ì¶Ô×Ó½ø³Ì½øĞĞµ÷ÊÔ(degugging)¡£
-int sys_ptrace ()
+//// è®¾ç½®fs æ®µå¯„å­˜å™¨ã€‚
+// å‚æ•°ï¼šval - æ®µå€¼ï¼ˆé€‰æ‹©ç¬¦ï¼‰ã€‚
+extern _inline void
+set_fs (unsigned long val)
 {
-	return -ENOSYS;
+//  __asm__ ("mov %0,%%fs"::"a" ((unsigned short) val));
+	_asm mov eax,val;
+	_asm mov fs,ax;
 }
-
-// ¸Ä±ä²¢´òÓ¡ÖÕ¶ËĞĞÉèÖÃ¡£
-int sys_stty ()
-{
-	return -ENOSYS;
-}
-
-// È¡ÖÕ¶ËĞĞÉèÖÃĞÅÏ¢¡£
-int sys_gtty ()
-{
-	return -ENOSYS;
-}
-
-// ĞŞ¸ÄÎÄ¼şÃû¡£
-int sys_rename ()
-{
-	return -ENOSYS;
-}
-
-//
-int sys_prof ()
-{
-	return -ENOSYS;
-}
-
-// ÉèÖÃµ±Ç°ÈÎÎñµÄÊµ¼ÊÒÔ¼°/»òÕßÓĞĞ§×éID£¨gid£©¡£Èç¹ûÈÎÎñÃ»ÓĞ³¬¼¶ÓÃ»§ÌØÈ¨£¬
-// ÄÇÃ´Ö»ÄÜ»¥»»ÆäÊµ¼Ê×éID ºÍÓĞĞ§×éID¡£Èç¹ûÈÎÎñ¾ßÓĞ³¬¼¶ÓÃ»§ÌØÈ¨£¬¾ÍÄÜÈÎÒâÉèÖÃÓĞĞ§µÄºÍÊµ¼Ê
-// µÄ×éID¡£±£ÁôµÄgid£¨saved gid£©±»ÉèÖÃ³ÉÓëÓĞĞ§gid Í¬Öµ¡£
-int sys_setregid (int rgid, int egid)
-{
-	if (rgid > 0)
 	{
-		if ((current->gid == rgid) || suser ())
-			current->gid = rgid;
-		else
-			return (-EPERM);
-	}
-	if (egid > 0)
-	{
-		if ((current->gid == egid) || (current->egid == egid) || 
-								(current->sgid == egid) || suser ())
-			current->egid = egid;
-		else
-			return (-EPERM);
-    }
-	return 0;
-}
-
-// ÉèÖÃ½ø³Ì×éºÅ(gid)¡£Èç¹ûÈÎÎñÃ»ÓĞ³¬¼¶ÓÃ»§ÌØÈ¨£¬Ëü¿ÉÒÔÊ¹ÓÃsetgid()½«ÆäÓĞĞ§gid
-// £¨effective gid£©ÉèÖÃÎª³ÉÆä±£Áôgid(saved gid)»òÆäÊµ¼Êgid(real gid)¡£Èç¹ûÈÎÎñÓĞ
-// ³¬¼¶ÓÃ»§ÌØÈ¨£¬ÔòÊµ¼Êgid¡¢ÓĞĞ§gid ºÍ±£Áôgid ¶¼±»ÉèÖÃ³É²ÎÊıÖ¸¶¨µÄgid¡£
-int sys_setgid (int gid)
-{
-	return (sys_setregid (gid, gid));
-}
-
-// ´ò¿ª»ò¹Ø±Õ½ø³Ì¼ÆÕÊ¹¦ÄÜ¡£
-int sys_acct ()
-{
-	return -ENOSYS;
-}
-
-// Ó³ÉäÈÎÒâÎïÀíÄÚ´æµ½½ø³ÌµÄĞéÄâµØÖ·¿Õ¼ä¡£
-int sys_phys ()
-{
-	return -ENOSYS;
-}
-
-int sys_lock ()
-{
-	return -ENOSYS;
-}
-
-int sys_mpx ()
-{
-	return -ENOSYS;
-}
-
-int sys_ulimit ()
-{
-	return -ENOSYS;
-}
-
-// ·µ»Ø´Ó1970 Äê1 ÔÂ1 ÈÕ00:00:00 GMT ¿ªÊ¼¼ÆÊ±µÄÊ±¼äÖµ£¨Ãë£©¡£Èç¹ûtloc ²»Îªnull£¬ÔòÊ±¼äÖµ
-// Ò²´æ´¢ÔÚÄÇÀï¡£
-int sys_time (long *tloc)
-{
-	int i;
-
-	i = CURRENT_TIME;
-	if (tloc)
-	{
-		verify_area (tloc, 4);	// ÑéÖ¤ÄÚ´æÈİÁ¿ÊÇ·ñ¹»£¨ÕâÀïÊÇ4 ×Ö½Ú£©¡£
-		put_fs_long (i, (unsigned long *) tloc);	// Ò²·ÅÈëÓÃ»§Êı¾İ¶Îtloc ´¦¡£
+		verify_area(tloc, 4);				   // éªŒè¯å†…å­˜å®¹é‡æ˜¯å¦å¤Ÿï¼ˆè¿™é‡Œæ˜¯4 å­—èŠ‚ï¼‰ã€‚
+		put_fs_long(i, (unsigned long *)tloc); // ä¹Ÿæ”¾å…¥ç”¨æˆ·æ•°æ®æ®µtloc å¤„ã€‚
 	}
 	return i;
 }
 
 /*
-* Unprivileged users may change the real user id to the effective uid
-* or vice versa.
-*/
+ * Unprivileged users may change the real user id to the effective uid
+ * or vice versa.
+ */
 /*
-* ÎŞÌØÈ¨µÄÓÃ»§¿ÉÒÔ¼ûÊµ¼ÊÓÃ»§±êÊ¶·û(real uid)¸Ä³ÉÓĞĞ§ÓÃ»§±êÊ¶·û(effective uid)£¬·´Ö®Ò²È»¡£
-*/
-// ÉèÖÃÈÎÎñµÄÊµ¼ÊÒÔ¼°/»òÕßÓĞĞ§ÓÃ»§ID£¨uid£©¡£Èç¹ûÈÎÎñÃ»ÓĞ³¬¼¶ÓÃ»§ÌØÈ¨£¬ÄÇÃ´Ö»ÄÜ»¥»»Æä
-// Êµ¼ÊÓÃ»§ID ºÍÓĞĞ§ÓÃ»§ID¡£Èç¹ûÈÎÎñ¾ßÓĞ³¬¼¶ÓÃ»§ÌØÈ¨£¬¾ÍÄÜÈÎÒâÉèÖÃÓĞĞ§µÄºÍÊµ¼ÊµÄÓÃ»§ID¡£
-// ±£ÁôµÄuid£¨saved uid£©±»ÉèÖÃ³ÉÓëÓĞĞ§uid Í¬Öµ¡£
-int sys_setreuid (int ruid, int euid)
+ * æ— ç‰¹æƒçš„ç”¨æˆ·å¯ä»¥è§å®é™…ç”¨æˆ·æ ‡è¯†ç¬¦(real uid)æ”¹æˆæœ‰æ•ˆç”¨æˆ·æ ‡è¯†ç¬¦(effective uid)ï¼Œåä¹‹ä¹Ÿç„¶ã€‚
+ */
+// è®¾ç½®ä»»åŠ¡çš„å®é™…ä»¥åŠ/æˆ–è€…æœ‰æ•ˆç”¨æˆ·IDï¼ˆuidï¼‰ã€‚å¦‚æœä»»åŠ¡æ²¡æœ‰è¶…çº§ç”¨æˆ·ç‰¹æƒï¼Œé‚£ä¹ˆåªèƒ½äº’æ¢å…¶
+// å®é™…ç”¨æˆ·ID å’Œæœ‰æ•ˆç”¨æˆ·IDã€‚å¦‚æœä»»åŠ¡å…·æœ‰è¶…çº§ç”¨æˆ·ç‰¹æƒï¼Œå°±èƒ½ä»»æ„è®¾ç½®æœ‰æ•ˆçš„å’Œå®é™…çš„ç”¨æˆ·IDã€‚
+// ä¿ç•™çš„uidï¼ˆsaved uidï¼‰è¢«è®¾ç½®æˆä¸æœ‰æ•ˆuid åŒå€¼ã€‚
+int sys_setreuid(int ruid, int euid)
 {
 	int old_ruid = current->uid;
 
 	if (ruid > 0)
 	{
-		if ((current->euid == ruid) || (old_ruid == ruid) || suser ())
+		if ((current->euid == ruid) || (old_ruid == ruid) || suser())
 			current->uid = ruid;
 		else
 			return (-EPERM);
 	}
 	if (euid > 0)
 	{
-		if ((old_ruid == euid) || (current->euid == euid) || suser ())
+		if ((old_ruid == euid) || (current->euid == euid) || suser())
 			current->euid = euid;
 		else
 		{
@@ -164,120 +163,124 @@ int sys_setreuid (int ruid, int euid)
 	return 0;
 }
 
-// ÉèÖÃÈÎÎñÓÃ»§ºÅ(uid)¡£Èç¹ûÈÎÎñÃ»ÓĞ³¬¼¶ÓÃ»§ÌØÈ¨£¬Ëü¿ÉÒÔÊ¹ÓÃsetuid()½«ÆäÓĞĞ§uid
-// £¨effective uid£©ÉèÖÃ³ÉÆä±£Áôuid(saved uid)»òÆäÊµ¼Êuid(real uid)¡£Èç¹ûÈÎÎñÓĞ
-// ³¬¼¶ÓÃ»§ÌØÈ¨£¬ÔòÊµ¼Êuid¡¢ÓĞĞ§uid ºÍ±£Áôuid ¶¼±»ÉèÖÃ³É²ÎÊıÖ¸¶¨µÄuid¡£
-int sys_setuid (int uid)
+// è®¾ç½®ä»»åŠ¡ç”¨æˆ·å·(uid)ã€‚å¦‚æœä»»åŠ¡æ²¡æœ‰è¶…çº§ç”¨æˆ·ç‰¹æƒï¼Œå®ƒå¯ä»¥ä½¿ç”¨setuid()å°†å…¶æœ‰æ•ˆuid
+// ï¼ˆeffective uidï¼‰è®¾ç½®æˆå…¶ä¿ç•™uid(saved uid)æˆ–å…¶å®é™…uid(real uid)ã€‚å¦‚æœä»»åŠ¡æœ‰
+// è¶…çº§ç”¨æˆ·ç‰¹æƒï¼Œåˆ™å®é™…uidã€æœ‰æ•ˆuid å’Œä¿ç•™uid éƒ½è¢«è®¾ç½®æˆå‚æ•°æŒ‡å®šçš„uidã€‚
+int sys_setuid(int uid)
 {
-	return (sys_setreuid (uid, uid));
+	return (sys_setreuid(uid, uid));
 }
 
-// ÉèÖÃÏµÍ³Ê±¼äºÍÈÕÆÚ¡£²ÎÊıtptr ÊÇ´Ó1970 Äê1 ÔÂ1 ÈÕ00:00:00 GMT ¿ªÊ¼¼ÆÊ±µÄÊ±¼äÖµ£¨Ãë£©¡£
-// µ÷ÓÃ½ø³Ì±ØĞë¾ßÓĞ³¬¼¶ÓÃ»§È¨ÏŞ¡£
-int sys_stime (long *tptr)
+// è®¾ç½®ç³»ç»Ÿæ—¶é—´å’Œæ—¥æœŸã€‚å‚æ•°tptr æ˜¯ä»1970 å¹´1 æœˆ1 æ—¥00:00:00 GMT å¼€å§‹è®¡æ—¶çš„æ—¶é—´å€¼ï¼ˆç§’ï¼‰ã€‚
+// è°ƒç”¨è¿›ç¨‹å¿…é¡»å…·æœ‰è¶…çº§ç”¨æˆ·æƒé™ã€‚
+int sys_stime(long *tptr)
 {
-	if (!suser ())		// Èç¹û²»ÊÇ³¬¼¶ÓÃ»§Ôò³ö´í·µ»Ø£¨Ğí¿É£©¡£
+	if (!suser()) // å¦‚æœä¸æ˜¯è¶…çº§ç”¨æˆ·åˆ™å‡ºé”™è¿”å›ï¼ˆè®¸å¯ï¼‰ã€‚
 		return -EPERM;
-	startup_time = get_fs_long ((unsigned long *) tptr) - jiffies / HZ;
+	startup_time = get_fs_long((unsigned long *)tptr) - jiffies / HZ;
 	return 0;
 }
 
-// »ñÈ¡µ±Ç°ÈÎÎñÊ±¼ä¡£tms ½á¹¹ÖĞ°üÀ¨ÓÃ»§Ê±¼ä¡¢ÏµÍ³Ê±¼ä¡¢×Ó½ø³ÌÓÃ»§Ê±¼ä¡¢×Ó½ø³ÌÏµÍ³Ê±¼ä¡£
-int sys_times (struct tms *tbuf)
+// è·å–å½“å‰ä»»åŠ¡æ—¶é—´ã€‚tms ç»“æ„ä¸­åŒ…æ‹¬ç”¨æˆ·æ—¶é—´ã€ç³»ç»Ÿæ—¶é—´ã€å­è¿›ç¨‹ç”¨æˆ·æ—¶é—´ã€å­è¿›ç¨‹ç³»ç»Ÿæ—¶é—´ã€‚
+int sys_times(struct tms *tbuf)
 {
 	if (tbuf)
 	{
-		verify_area (tbuf, sizeof *tbuf);
-		put_fs_long (current->utime, (unsigned long *) &tbuf->tms_utime);
-		put_fs_long (current->stime, (unsigned long *) &tbuf->tms_stime);
-		put_fs_long (current->cutime, (unsigned long *) &tbuf->tms_cutime);
-		put_fs_long (current->cstime, (unsigned long *) &tbuf->tms_cstime);
+		verify_area(tbuf, sizeof *tbuf);
+		put_fs_long(current->utime, (unsigned long *)&tbuf->tms_utime);
+		put_fs_long(current->stime, (unsigned long *)&tbuf->tms_stime);
+		put_fs_long(current->cutime, (unsigned long *)&tbuf->tms_cutime);
+		put_fs_long(current->cstime, (unsigned long *)&tbuf->tms_cstime);
 	}
 	return jiffies;
 }
 
-// µ±²ÎÊıend_data_seg ÊıÖµºÏÀí£¬²¢ÇÒÏµÍ³È·ÊµÓĞ×ã¹»µÄÄÚ´æ£¬¶øÇÒ½ø³ÌÃ»ÓĞ³¬Ô½Æä×î´óÊı¾İ¶Î´óĞ¡
-// Ê±£¬¸Ãº¯ÊıÉèÖÃÊı¾İ¶ÎÄ©Î²Îªend_data_seg Ö¸¶¨µÄÖµ¡£¸ÃÖµ±ØĞë´óÓÚ´úÂë½áÎ²²¢ÇÒÒªĞ¡ÓÚ¶ÑÕ»
-// ½áÎ²16KB¡£·µ»ØÖµÊÇÊı¾İ¶ÎµÄĞÂ½áÎ²Öµ£¨Èç¹û·µ»ØÖµÓëÒªÇóÖµ²»Í¬£¬Ôò±íÃ÷ÓĞ´í·¢Éú£©¡£
-// ¸Ãº¯Êı²¢²»±»ÓÃ»§Ö±½Óµ÷ÓÃ£¬¶øÓÉlibc ¿âº¯Êı½øĞĞ°ü×°£¬²¢ÇÒ·µ»ØÖµÒ²²»Ò»Ñù¡£
-int sys_brk (unsigned long end_data_seg)
+// å½“å‚æ•°end_data_seg æ•°å€¼åˆç†ï¼Œå¹¶ä¸”ç³»ç»Ÿç¡®å®æœ‰è¶³å¤Ÿçš„å†…å­˜ï¼Œè€Œä¸”è¿›ç¨‹æ²¡æœ‰è¶…è¶Šå…¶æœ€å¤§æ•°æ®æ®µå¤§å°
+// æ—¶ï¼Œè¯¥å‡½æ•°è®¾ç½®æ•°æ®æ®µæœ«å°¾ä¸ºend_data_seg æŒ‡å®šçš„å€¼ã€‚è¯¥å€¼å¿…é¡»å¤§äºä»£ç ç»“å°¾å¹¶ä¸”è¦å°äºå †æ ˆ
+// ç»“å°¾16KBã€‚è¿”å›å€¼æ˜¯æ•°æ®æ®µçš„æ–°ç»“å°¾å€¼ï¼ˆå¦‚æœè¿”å›å€¼ä¸è¦æ±‚å€¼ä¸åŒï¼Œåˆ™è¡¨æ˜æœ‰é”™å‘ç”Ÿï¼‰ã€‚
+// è¯¥å‡½æ•°å¹¶ä¸è¢«ç”¨æˆ·ç›´æ¥è°ƒç”¨ï¼Œè€Œç”±libc åº“å‡½æ•°è¿›è¡ŒåŒ…è£…ï¼Œå¹¶ä¸”è¿”å›å€¼ä¹Ÿä¸ä¸€æ ·ã€‚
+int sys_brk(unsigned long end_data_seg)
 {
-	if (end_data_seg >= current->end_code &&	// Èç¹û²ÎÊı>´úÂë½áÎ²£¬²¢ÇÒ
-	end_data_seg < current->start_stack - 16384)	// Ğ¡ÓÚ¶ÑÕ»-16KB£¬
-		current->brk = end_data_seg;	// ÔòÉèÖÃĞÂÊı¾İ¶Î½áÎ²Öµ¡£
-	return current->brk;		// ·µ»Ø½ø³Ìµ±Ç°µÄÊı¾İ¶Î½áÎ²Öµ¡£
+	if (end_data_seg >= current->end_code &&		 // å¦‚æœå‚æ•°>ä»£ç ç»“å°¾ï¼Œå¹¶ä¸”
+		end_data_seg < current->start_stack - 16384) // å°äºå †æ ˆ-16KBï¼Œ
+		current->brk = end_data_seg;				 // åˆ™è®¾ç½®æ–°æ•°æ®æ®µç»“å°¾å€¼ã€‚
+	return current->brk;							 // è¿”å›è¿›ç¨‹å½“å‰çš„æ•°æ®æ®µç»“å°¾å€¼ã€‚
 }
 
 /*
-* This needs some heave checking ...
-* I just haven't get the stomach for it. I also don't fully
-* understand sessions/pgrp etc. Let somebody who does explain it.
-*/
+ * This needs some heave checking ...
+ * I just haven't get the stomach for it. I also don't fully
+ * understand sessions/pgrp etc. Let somebody who does explain it.
+ */
 /*
-* ÏÂÃæ´úÂëĞèÒªÄ³Ğ©ÑÏ¸ñµÄ¼ì²é¡­
-* ÎÒÖ»ÊÇÃ»ÓĞÎ¸¿ÚÀ´×öÕâĞ©¡£ÎÒÒ²²»ÍêÈ«Ã÷°×sessions/pgrp µÈ¡£»¹ÊÇÈÃÁË½âËüÃÇµÄÈËÀ´×ö°É¡£
-*/
-// ½«²ÎÊıpid Ö¸¶¨½ø³ÌµÄ½ø³Ì×éID ÉèÖÃ³Épgid¡£Èç¹û²ÎÊıpid=0£¬ÔòÊ¹ÓÃµ±Ç°½ø³ÌºÅ¡£Èç¹û
-// pgid Îª0£¬ÔòÊ¹ÓÃ²ÎÊıpid Ö¸¶¨µÄ½ø³ÌµÄ×éID ×÷Îªpgid¡£Èç¹û¸Ãº¯ÊıÓÃÓÚ½«½ø³Ì´ÓÒ»¸ö
-// ½ø³Ì×éÒÆµ½ÁíÒ»¸ö½ø³Ì×é£¬ÔòÕâÁ½¸ö½ø³Ì×é±ØĞëÊôÓÚÍ¬Ò»¸ö»á»°(session)¡£ÔÚÕâÖÖÇé¿öÏÂ£¬
-// ²ÎÊıpgid Ö¸¶¨ÁËÒª¼ÓÈëµÄÏÖÓĞ½ø³Ì×éID£¬´ËÊ±¸Ã×éµÄ»á»°ID ±ØĞëÓë½«Òª¼ÓÈë½ø³ÌµÄÏàÍ¬(193 ĞĞ)¡£
-int sys_setpgid (int pid, int pgid)
+ * ä¸‹é¢ä»£ç éœ€è¦æŸäº›ä¸¥æ ¼çš„æ£€æŸ¥â€¦
+ * æˆ‘åªæ˜¯æ²¡æœ‰èƒƒå£æ¥åšè¿™äº›ã€‚æˆ‘ä¹Ÿä¸å®Œå…¨æ˜ç™½sessions/pgrp ç­‰ã€‚è¿˜æ˜¯è®©äº†è§£å®ƒä»¬çš„äººæ¥åšå§ã€‚
+ */
+// å°†å‚æ•°pid æŒ‡å®šè¿›ç¨‹çš„è¿›ç¨‹ç»„ID è®¾ç½®æˆpgidã€‚å¦‚æœå‚æ•°pid=0ï¼Œåˆ™ä½¿ç”¨å½“å‰è¿›ç¨‹å·ã€‚å¦‚æœ
+// pgid ä¸º0ï¼Œåˆ™ä½¿ç”¨å‚æ•°pid æŒ‡å®šçš„è¿›ç¨‹çš„ç»„ID ä½œä¸ºpgidã€‚
+// å¦‚æœè¯¥å‡½æ•°ç”¨äºå°†è¿›ç¨‹ä»ä¸€ä¸ªè¿›ç¨‹ç»„ç§»åˆ°å¦ä¸€ä¸ªè¿›ç¨‹ç»„ï¼Œåˆ™è¿™ä¸¤ä¸ªè¿›ç¨‹ç»„å¿…é¡»å±äºåŒä¸€ä¸ªä¼šè¯(session)ã€‚
+// åœ¨è¿™ç§æƒ…å†µä¸‹ï¼Œå‚æ•°pgid æŒ‡å®šäº†è¦åŠ å…¥çš„ç°æœ‰è¿›ç¨‹ç»„IDï¼Œæ­¤æ—¶è¯¥ç»„çš„ä¼šè¯ID å¿…é¡»ä¸å°†è¦åŠ å…¥è¿›ç¨‹çš„ç›¸åŒ(193 è¡Œ)ã€‚
+// pid, pgid
+// 0    0     
+// 0    val
+// val  0
+// val  val
+int sys_setpgid(int pid, int pgid)
 {
 	int i;
 
-	if (!pid)			// Èç¹û²ÎÊıpid=0£¬ÔòÊ¹ÓÃµ±Ç°½ø³ÌºÅ¡£
+	if (!pid) // å¦‚æœå‚æ•°pid=0ï¼Œåˆ™ä½¿ç”¨å½“å‰è¿›ç¨‹å·ã€‚
 		pid = current->pid;
-	if (!pgid)			// Èç¹ûpgid Îª0£¬ÔòÊ¹ÓÃµ±Ç°½ø³Ìpid ×÷Îªpgid¡£
-		pgid = current->pid;	// [??ÕâÀïÓëPOSIX µÄÃèÊöÓĞ³öÈë]
-	for (i = 0; i < NR_TASKS; i++)	// É¨ÃèÈÎÎñÊı×é£¬²éÕÒÖ¸¶¨½ø³ÌºÅµÄÈÎÎñ¡£
-	if (task[i] && task[i]->pid == pid)
-	{
-		if (task[i]->leader)	// Èç¹û¸ÃÈÎÎñÒÑ¾­ÊÇÊ×Áì£¬Ôò³ö´í·µ»Ø¡£
-			return -EPERM;
-		if (task[i]->session != current->session)	// Èç¹û¸ÃÈÎÎñµÄ»á»°ID
-			return -EPERM;	// Óëµ±Ç°½ø³ÌµÄ²»Í¬£¬Ôò³ö´í·µ»Ø¡£
-		task[i]->pgrp = pgid;	// ÉèÖÃ¸ÃÈÎÎñµÄpgrp¡£
-		return 0;
-	}
+	if (!pgid)					   // å¦‚æœpgid ä¸º0ï¼Œåˆ™ä½¿ç”¨å½“å‰è¿›ç¨‹pid ä½œä¸ºpgidã€‚
+		pgid = current->pid;	   // [??è¿™é‡Œä¸POSIX çš„æè¿°æœ‰å‡ºå…¥]
+	for (i = 0; i < NR_TASKS; i++) // æ‰«æä»»åŠ¡æ•°ç»„ï¼ŒæŸ¥æ‰¾æŒ‡å®šè¿›ç¨‹å·çš„ä»»åŠ¡ã€‚
+		if (task[i] && task[i]->pid == pid)
+		{
+			if (task[i]->leader) // å¦‚æœè¯¥ä»»åŠ¡å·²ç»æ˜¯é¦–é¢†ï¼Œåˆ™å‡ºé”™è¿”å›ã€‚ ä¼šè¯leader æ— æ³•åˆ‡æ¢ç»„
+				return -EPERM;
+			if (task[i]->session != current->session) // å¦‚æœè¯¥ä»»åŠ¡çš„ä¼šè¯ID
+				return -EPERM;						  // ä¸å½“å‰è¿›ç¨‹çš„ä¸åŒï¼Œåˆ™å‡ºé”™è¿”å›ã€‚
+			task[i]->pgrp = pgid;					  // è®¾ç½®è¯¥ä»»åŠ¡çš„pgrpã€‚
+			return 0;
+		}
 	return -ESRCH;
 }
 
-// ·µ»Øµ±Ç°½ø³ÌµÄ×éºÅ¡£Óëgetpgid(0)µÈÍ¬¡£
-int sys_getpgrp (void)
+// è¿”å›å½“å‰è¿›ç¨‹çš„ç»„å·ã€‚ä¸getpgid(0)ç­‰åŒã€‚
+int sys_getpgrp(void)
 {
 	return current->pgrp;
 }
 
-// ´´½¨Ò»¸ö»á»°(session)£¨¼´ÉèÖÃÆäleader=1£©£¬²¢ÇÒÉèÖÃÆä»á»°=Æä×éºÅ=Æä½ø³ÌºÅ¡£
-int sys_setsid (void)
+// åˆ›å»ºä¸€ä¸ªä¼šè¯(session)ï¼ˆå³è®¾ç½®å…¶leader=1ï¼‰ï¼Œå¹¶ä¸”è®¾ç½®å…¶ä¼šè¯=å…¶ç»„å·=å…¶è¿›ç¨‹å·ã€‚
+int sys_setsid(void)
 {
-	if (current->leader && !suser ())	// Èç¹ûµ±Ç°½ø³ÌÒÑÊÇ»á»°Ê×Áì²¢ÇÒ²»ÊÇ³¬¼¶ÓÃ»§
-		return -EPERM;		// Ôò³ö´í·µ»Ø¡£
-	current->leader = 1;		// ÉèÖÃµ±Ç°½ø³ÌÎªĞÂ»á»°Ê×Áì¡£
-	current->session = current->pgrp = current->pid;	// ÉèÖÃ±¾½ø³Ìsession = pid¡£
-	current->tty = -1;		// ±íÊ¾µ±Ç°½ø³ÌÃ»ÓĞ¿ØÖÆÖÕ¶Ë¡£
-	return current->pgrp;		// ·µ»Ø»á»°ID¡£
+	if (current->leader && !suser())				 // å¦‚æœå½“å‰è¿›ç¨‹å·²æ˜¯ä¼šè¯é¦–é¢†å¹¶ä¸”ä¸æ˜¯è¶…çº§ç”¨æˆ·
+		return -EPERM;								 // åˆ™å‡ºé”™è¿”å›ã€‚
+	current->leader = 1;							 // è®¾ç½®å½“å‰è¿›ç¨‹ä¸ºæ–°ä¼šè¯é¦–é¢†ã€‚
+	current->session = current->pgrp = current->pid; // è®¾ç½®æœ¬è¿›ç¨‹session = pidã€‚
+	current->tty = -1;								 // è¡¨ç¤ºå½“å‰è¿›ç¨‹æ²¡æœ‰æ§åˆ¶ç»ˆç«¯ã€‚
+	return current->pgrp;							 // è¿”å›ä¼šè¯IDã€‚
 }
 
-// »ñÈ¡ÏµÍ³ĞÅÏ¢¡£ÆäÖĞutsname ½á¹¹°üº¬5 ¸ö×Ö¶Î£¬·Ö±ğÊÇ£º±¾°æ±¾²Ù×÷ÏµÍ³µÄÃû³Æ¡¢ÍøÂç½ÚµãÃû³Æ¡¢
-// µ±Ç°·¢ĞĞ¼¶±ğ¡¢°æ±¾¼¶±ğºÍÓ²¼şÀàĞÍÃû³Æ¡£
-int sys_uname (struct utsname *name)
+// è·å–ç³»ç»Ÿä¿¡æ¯ã€‚å…¶ä¸­utsname ç»“æ„åŒ…å«5 ä¸ªå­—æ®µï¼Œåˆ†åˆ«æ˜¯ï¼šæœ¬ç‰ˆæœ¬æ“ä½œç³»ç»Ÿçš„åç§°ã€ç½‘ç»œèŠ‚ç‚¹åç§°ã€
+// å½“å‰å‘è¡Œçº§åˆ«ã€ç‰ˆæœ¬çº§åˆ«å’Œç¡¬ä»¶ç±»å‹åç§°ã€‚
+int sys_uname(struct utsname *name)
 {
-	static struct utsname thisname = {	// ÕâÀï¸ø³öÁË½á¹¹ÖĞµÄĞÅÏ¢£¬ÕâÖÖ±àÂë¿Ï¶¨»á¸Ä±ä¡£
-		"linux .0", "nodename", "release ", "version ", "machine "
-	};
+	static struct utsname thisname = {// è¿™é‡Œç»™å‡ºäº†ç»“æ„ä¸­çš„ä¿¡æ¯ï¼Œè¿™ç§ç¼–ç è‚¯å®šä¼šæ”¹å˜ã€‚
+									  "linux .0", "nodename", "release ", "version ", "machine "};
 	int i;
 
 	if (!name)
-		return -ERROR;		// Èç¹û´æ·ÅĞÅÏ¢µÄ»º³åÇøÖ¸ÕëÎª¿ÕÔò³ö´í·µ»Ø¡£
-	verify_area (name, sizeof *name);	// ÑéÖ¤»º³åÇø´óĞ¡ÊÇ·ñ³¬ÏŞ£¨³¬³öÒÑ·ÖÅäµÄÄÚ´æµÈ£©¡£
-	for (i = 0; i < sizeof *name; i++)	// ½«utsname ÖĞµÄĞÅÏ¢Öğ×Ö½Ú¸´ÖÆµ½ÓÃ»§»º³åÇøÖĞ¡£
-		put_fs_byte (((char *) &thisname)[i], i + (char *) name);
+		return -ERROR;				   // å¦‚æœå­˜æ”¾ä¿¡æ¯çš„ç¼“å†²åŒºæŒ‡é’ˆä¸ºç©ºåˆ™å‡ºé”™è¿”å›ã€‚
+	verify_area(name, sizeof *name);   // éªŒè¯ç¼“å†²åŒºå¤§å°æ˜¯å¦è¶…é™ï¼ˆè¶…å‡ºå·²åˆ†é…çš„å†…å­˜ç­‰ï¼‰ã€‚
+	for (i = 0; i < sizeof *name; i++) // å°†utsname ä¸­çš„ä¿¡æ¯é€å­—èŠ‚å¤åˆ¶åˆ°ç”¨æˆ·ç¼“å†²åŒºä¸­ã€‚
+		put_fs_byte(((char *)&thisname)[i], i + (char *)name);
 	return 0;
 }
 
-// ÉèÖÃµ±Ç°½ø³Ì´´½¨ÎÄ¼şÊôĞÔÆÁ±ÎÂëÎªmask & 0777¡£²¢·µ»ØÔ­ÆÁ±ÎÂë¡£
-int sys_umask (int mask)
+// è®¾ç½®å½“å‰è¿›ç¨‹åˆ›å»ºæ–‡ä»¶å±æ€§å±è”½ç ä¸ºmask & 0777ã€‚å¹¶è¿”å›åŸå±è”½ç ã€‚
+int sys_umask(int mask)
 {
 	int old = current->umask;
 
