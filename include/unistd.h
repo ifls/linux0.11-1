@@ -1,299 +1,58 @@
-#ifndef _UNISTD_H
-#define _UNISTD_H
+#ifndef _TIME_H
+#define _TIME_H
 
-/* ok, this may be a joke, but I'm working on it */
-/* ok, ÕâÒ²ĞíÊÇ¸öÍæĞ¦£¬µ«ÎÒÕıÔÚ×ÅÊÖ´¦Àí */
-// ÏÂÃæ·ûºÅ³£ÊıÖ¸³ö·ûºÏIEEE ±ê×¼1003.1 ÊµÏÖµÄ°æ±¾ºÅ£¬ÊÇÒ»¸öÕûÊıÖµ¡£
-#define _POSIX_VERSION 198808L
-
-// chown()ºÍfchown()µÄÊ¹ÓÃÊÜÏŞÓÚ½ø³ÌµÄÈ¨ÏŞ¡£/* Ö»ÓĞ³¬¼¶ÓÃ»§¿ÉÒÔÖ´ĞĞchown£¨ÎÒÏë..£©*/
-#define _POSIX_CHOWN_RESTRICTED	/* only root can do a chown (I think..) */
-// ³¤ÓÚ(NAME_MAX)µÄÂ·¾¶Ãû½«²úÉú´íÎó£¬¶ø²»»á×Ô¶¯½Ø¶Ï¡£/* Â·¾¶Ãû²»½Ø¶Ï£¨µ«ÊÇÇë¿´ÄÚºË´úÂë£©*/
-#define _POSIX_NO_TRUNC		/* no pathname truncation (but see in kernel) */
-// ÏÂÃæÕâ¸ö·ûºÅ½«¶¨Òå³É×Ö·ûÖµ£¬¸ÃÖµ½«½ûÖ¹ÖÕ¶Ë¶ÔÆäµÄ´¦Àí¡£/* ½ûÖ¹Ïó^C ÕâÑùµÄ×Ö·û */
-#define _POSIX_VDISABLE '\0'	/* character to disable things like ^C */
-// Ã¿¸ö½ø³Ì¶¼ÓĞÒ»±£´æµÄset-user-ID ºÍÒ»±£´æµÄset-group-ID¡£ /* ÎÒÃÇ½«×ÅÊÖ¶Ô´Ë½øĞĞ´¦Àí */
-/*#define _POSIX_SAVED_IDS *//* we'll get to this yet */
-// ÏµÍ³ÊµÏÖÖ§³Ö×÷Òµ¿ØÖÆ¡£ /* ÎÒÃÇ»¹Ã»ÓĞÖ§³ÖÕâÏî±ê×¼£¬Ï£ÍûºÜ¿ì¾ÍĞĞ */
-/*#define _POSIX_JOB_CONTROL *//* we aren't there quite yet. Soon hopefully */
-
-#define STDIN_FILENO 0		// ±ê×¼ÊäÈëÎÄ¼ş¾ä±ú£¨ÃèÊö·û£©ºÅ¡£
-#define STDOUT_FILENO 1		// ±ê×¼Êä³öÎÄ¼ş¾ä±úºÅ¡£
-#define STDERR_FILENO 2		// ±ê×¼³ö´íÎÄ¼ş¾ä±úºÅ¡£
-
-#ifndef NULL
-#define NULL 0	// ¶¨Òå¿ÕÖ¸Õë¡£
+#ifndef _TIME_T
+#define _TIME_T
+typedef long time_t;		// ä»GMT 1970 å¹´1 æœˆ1 æ—¥å¼€å§‹çš„ä»¥ç§’è®¡æ•°çš„æ—¶é—´ï¼ˆæ—¥å†æ—¶é—´ï¼‰ã€‚
 #endif
 
-/* access *//* ÎÄ¼ş·ÃÎÊ */
-// ÒÔÏÂ¶¨ÒåµÄ·ûºÅ³£ÊıÓÃÓÚaccess()º¯Êı¡£
-#define F_OK 0			// ¼ì²âÎÄ¼şÊÇ·ñ´æÔÚ¡£
-#define X_OK 1			// ¼ì²âÊÇ·ñ¿ÉÖ´ĞĞ£¨ËÑË÷£©¡£
-#define W_OK 2			// ¼ì²âÊÇ·ñ¿ÉĞ´¡£
-#define R_OK 4			// ¼ì²âÊÇ·ñ¿É¶Á¡£
+#ifndef _SIZE_T
+#define _SIZE_T
+typedef unsigned int size_t;
+#endif
 
-/* lseek *//* ÎÄ¼şÖ¸ÕëÖØ¶¨Î» */
-// ÒÔÏÂ·ûºÅ³£ÊıÓÃÓÚlseek()ºÍfcntl()º¯Êı¡£
-#define SEEK_SET 0		// ½«ÎÄ¼ş¶ÁĞ´Ö¸ÕëÉèÖÃÎªÆ«ÒÆÖµ¡£
-#define SEEK_CUR 1		// ½«ÎÄ¼ş¶ÁĞ´Ö¸ÕëÉèÖÃÎªµ±Ç°Öµ¼ÓÉÏÆ«ÒÆÖµ¡£
-#define SEEK_END 2		// ½«ÎÄ¼ş¶ÁĞ´Ö¸ÕëÉèÖÃÎªÎÄ¼ş³¤¶È¼ÓÉÏÆ«ÒÆÖµ¡£
+#define CLOCKS_PER_SEC 100	// ç³»ç»Ÿæ—¶é’Ÿæ»´ç­”é¢‘ç‡ï¼Œ100HZã€‚
 
-/* _SC stands for System Configuration. We don't use them much */
-/* _SC ±íÊ¾ÏµÍ³ÅäÖÃ¡£ÎÒÃÇºÜÉÙÊ¹ÓÃ */
-// ÏÂÃæµÄ·ûºÅ³£ÊıÓÃÓÚsysconf()º¯Êı¡£
-#define _SC_ARG_MAX 1		// ×î´ó±äÁ¿Êı¡£
-#define _SC_CHILD_MAX 2		// ×Ó½ø³Ì×î´óÊı¡£
-#define _SC_CLOCKS_PER_SEC 3	// Ã¿ÃëµÎ´ğÊı¡£
-#define _SC_NGROUPS_MAX 4	// ×î´ó×éÊı¡£
-#define _SC_OPEN_MAX 5		// ×î´ó´ò¿ªÎÄ¼şÊı¡£
-#define _SC_JOB_CONTROL 6	// ×÷Òµ¿ØÖÆ¡£
-#define _SC_SAVED_IDS 7		// ±£´æµÄ±êÊ¶·û¡£
-#define _SC_VERSION 8		// °æ±¾¡£
+typedef long clock_t;		// ä»è¿›ç¨‹å¼€å§‹ç³»ç»Ÿç»è¿‡çš„æ—¶é’Ÿæ»´ç­”æ•°ã€‚
 
-/* more (possibly) configurable things - now pathnames */
-/* ¸ü¶àµÄ£¨¿ÉÄÜµÄ£©¿ÉÅäÖÃ²ÎÊı - ÏÖÔÚÓÃÓÚÂ·¾¶Ãû */
-// ÏÂÃæµÄ·ûºÅ³£ÊıÓÃÓÚpathconf()º¯Êı¡£
-#define _PC_LINK_MAX 1		// Á¬½Ó×î´óÊı¡£
-#define _PC_MAX_CANON 2		// ×î´ó³£¹æÎÄ¼şÊı¡£
-#define _PC_MAX_INPUT 3		// ×î´óÊäÈë³¤¶È¡£
-#define _PC_NAME_MAX 4		// Ãû³Æ×î´ó³¤¶È¡£
-#define _PC_PATH_MAX 5		// Â·¾¶×î´ó³¤¶È¡£
-#define _PC_PIPE_BUF 6		// ¹ÜµÀ»º³å´óĞ¡¡£
-#define _PC_NO_TRUNC 7		// ÎÄ¼şÃû²»½Ø¶Ï¡£
-#define _PC_VDISABLE 8		//
-#define _PC_CHOWN_RESTRICTED 9	// ¸Ä±äËŞÖ÷ÊÜÏŞ¡£
+struct tm
+{
+  int tm_sec;			// ç§’æ•° [0ï¼Œ59]ã€‚
+  int tm_min;			// åˆ†é’Ÿæ•° [ 0ï¼Œ59]ã€‚
+  int tm_hour;			// å°æ—¶æ•° [0ï¼Œ59]ã€‚
+  int tm_mday;			// 1 ä¸ªæœˆçš„å¤©æ•° [0ï¼Œ31]ã€‚
+  int tm_mon;			// 1 å¹´ä¸­æœˆä»½ [0ï¼Œ11]ã€‚
+  int tm_year;			// ä»1900 å¹´å¼€å§‹çš„å¹´æ•°ã€‚
+  int tm_wday;			// 1 æ˜ŸæœŸä¸­çš„æŸå¤© [0ï¼Œ6]ï¼ˆæ˜ŸæœŸå¤© =0ï¼‰ã€‚
+  int tm_yday;			// 1 å¹´ä¸­çš„æŸå¤© [0ï¼Œ365]ã€‚
+  int tm_isdst;			// å¤ä»¤æ—¶æ ‡å¿—ã€‚
+};
 
-#include <sys/stat.h>		// ÎÄ¼ş×´Ì¬Í·ÎÄ¼ş¡£º¬ÓĞÎÄ¼ş»òÎÄ¼şÏµÍ³×´Ì¬½á¹¹stat{}ºÍ³£Á¿¡£
-#include <sys/times.h>		// ¶¨ÒåÁË½ø³ÌÖĞÔËĞĞÊ±¼ä½á¹¹tms ÒÔ¼°times()º¯ÊıÔ­ĞÍ¡£
-#include <sys/utsname.h>	// ÏµÍ³Ãû³Æ½á¹¹Í·ÎÄ¼ş¡£
-#include <utime.h>		// ÓÃ»§Ê±¼äÍ·ÎÄ¼ş¡£¶¨ÒåÁË·ÃÎÊºÍĞŞ¸ÄÊ±¼ä½á¹¹ÒÔ¼°utime()Ô­ĞÍ¡£
+// ä»¥ä¸‹æ˜¯æœ‰å…³æ—¶é—´æ“ä½œçš„å‡½æ•°åŸå‹ã€‚
+// ç¡®å®šå¤„ç†å™¨ä½¿ç”¨æ—¶é—´ã€‚è¿”å›ç¨‹åºæ‰€ç”¨å¤„ç†å™¨æ—¶é—´ï¼ˆæ»´ç­”æ•°ï¼‰çš„è¿‘ä¼¼å€¼ã€‚
+clock_t clock (void);
+// å–æ—¶é—´ï¼ˆç§’æ•°ï¼‰ã€‚è¿”å›ä»1970.1.1:0:0:0 å¼€å§‹çš„ç§’æ•°ï¼ˆç§°ä¸ºæ—¥å†æ—¶é—´ï¼‰ã€‚
+time_t time (time_t * tp);
+// è®¡ç®—æ—¶é—´å·®ã€‚è¿”å›æ—¶é—´time2 ä¸time1 ä¹‹é—´ç»è¿‡çš„ç§’æ•°ã€‚
+double difftime (time_t time2, time_t time1);
+// å°†tm ç»“æ„è¡¨ç¤ºçš„æ—¶é—´è½¬æ¢æˆæ—¥å†æ—¶é—´ã€‚
+time_t mktime (struct tm *tp);
 
-#ifdef __LIBRARY__
+// å°†tm ç»“æ„è¡¨ç¤ºçš„æ—¶é—´è½¬æ¢æˆä¸€ä¸ªå­—ç¬¦ä¸²ã€‚è¿”å›æŒ‡å‘è¯¥ä¸²çš„æŒ‡é’ˆã€‚
+char *asctime (const struct tm *tp);
+// å°†æ—¥å†æ—¶é—´è½¬æ¢æˆä¸€ä¸ªå­—ç¬¦ä¸²å½¢å¼ï¼Œå¦‚â€œWed Jun 30 21:49:08:1993\nâ€ã€‚
+char *ctime (const time_t * tp);
+// å°†æ—¥å†æ—¶é—´è½¬æ¢æˆtm ç»“æ„è¡¨ç¤ºçš„UTC æ—¶é—´ï¼ˆUTC - ä¸–ç•Œæ—¶é—´ä»£ç Universal Time Codeï¼‰ã€‚
+struct tm *gmtime (const time_t * tp);
+// å°†æ—¥å†æ—¶é—´è½¬æ¢æˆtm ç»“æ„è¡¨ç¤ºçš„æŒ‡å®šæ—¶é—´åŒº(timezone)çš„æ—¶é—´ã€‚
+struct tm *localtime (const time_t * tp);
+// å°†tm ç»“æ„è¡¨ç¤ºçš„æ—¶é—´åˆ©ç”¨æ ¼å¼å­—ç¬¦ä¸²fmt è½¬æ¢æˆæœ€å¤§é•¿åº¦ä¸ºsmax çš„å­—ç¬¦ä¸²å¹¶å°†ç»“æœå­˜å‚¨åœ¨s ä¸­ã€‚
+size_t strftime (char *s, size_t smax, const char *fmt, const struct tm *tp);
+// åˆå§‹åŒ–æ—¶é—´è½¬æ¢ä¿¡æ¯ï¼Œä½¿ç”¨ç¯å¢ƒå˜é‡TZï¼Œå¯¹zname å˜é‡è¿›è¡Œåˆå§‹åŒ–ã€‚
+// åœ¨ä¸æ—¶é—´åŒºç›¸å…³çš„æ—¶é—´è½¬æ¢å‡½æ•°ä¸­å°†è‡ªåŠ¨è°ƒç”¨è¯¥å‡½æ•°ã€‚
+void tzset (void);
 
-// ÒÔÏÂÊÇÄÚºËÊµÏÖµÄÏµÍ³µ÷ÓÃ·ûºÅ³£Êı£¬ÓÃÓÚ×÷ÎªÏµÍ³µ÷ÓÃº¯Êı±íÖĞµÄË÷ÒıÖµ¡£( include/linux/sys.h )
-#define __NR_setup 0		/* used only by init, to get system going */
-/* __NR_setup ½öÓÃÓÚ³õÊ¼»¯£¬ÒÔÆô¶¯ÏµÍ³ */
-#define __NR_exit 1
-#define __NR_fork 2
-#define __NR_read 3
-#define __NR_write 4
-#define __NR_open 5
-#define __NR_close 6
-#define __NR_waitpid 7
-#define __NR_creat 8
-#define __NR_link 9
-#define __NR_unlink 10
-#define __NR_execve 11
-#define __NR_chdir 12
-#define __NR_time 13
-#define __NR_mknod 14
-#define __NR_chmod 15
-#define __NR_chown 16
-#define __NR_break 17
-#define __NR_stat 18
-#define __NR_lseek 19
-#define __NR_getpid 20
-#define __NR_mount 21
-#define __NR_umount 22
-#define __NR_setuid 23
-#define __NR_getuid 24
-#define __NR_stime 25
-#define __NR_ptrace 26
-#define __NR_alarm 27
-#define __NR_fstat 28
-#define __NR_pause 29
-#define __NR_utime 30
-#define __NR_stty 31
-#define __NR_gtty 32
-#define __NR_access 33
-#define __NR_nice 34
-#define __NR_ftime 35
-#define __NR_sync 36
-#define __NR_kill 37
-#define __NR_rename 38
-#define __NR_mkdir 39
-#define __NR_rmdir 40
-#define __NR_dup 41
-#define __NR_pipe 42
-#define __NR_times 43
-#define __NR_prof 44
-#define __NR_brk 45
-#define __NR_setgid 46
-#define __NR_getgid 47
-#define __NR_signal 48
-#define __NR_geteuid 49
-#define __NR_getegid 50
-#define __NR_acct 51
-#define __NR_phys 52
-#define __NR_lock 53
-#define __NR_ioctl 54
-#define __NR_fcntl 55
-#define __NR_mpx 56
-#define __NR_setpgid 57
-#define __NR_ulimit 58
-#define __NR_uname 59
-#define __NR_umask 60
-#define __NR_chroot 61
-#define __NR_ustat 62
-#define __NR_dup2 63
-#define __NR_getppid 64
-#define __NR_getpgrp 65
-#define __NR_setsid 66
-#define __NR_sigaction 67
-#define __NR_sgetmask 68
-#define __NR_ssetmask 69
-#define __NR_setreuid 70
-#define __NR_setregid 71
-
-// ÒÔÏÂ¶¨ÒåÏµÍ³µ÷ÓÃÇ¶ÈëÊ½»ã±àºêº¯Êı¡£
-// ²»´ø²ÎÊıµÄÏµÍ³µ÷ÓÃºêº¯Êı¡£type name(void)¡£
-// %0 - eax(__res)£¬%1 - eax(__NR_##name)¡£ÆäÖĞname ÊÇÏµÍ³µ÷ÓÃµÄÃû³Æ£¬Óë __NR_ ×éºÏĞÎ³ÉÉÏÃæ
-// µÄÏµÍ³µ÷ÓÃ·ûºÅ³£Êı£¬´Ó¶øÓÃÀ´¶ÔÏµÍ³µ÷ÓÃ±íÖĞº¯ÊıÖ¸ÕëÑ°Ö·¡£
-// ·µ»Ø£ºÈç¹û·µ»ØÖµ´óÓÚµÈÓÚ0£¬Ôò·µ»Ø¸ÃÖµ£¬·ñÔòÖÃ³ö´íºÅerrno£¬²¢·µ»Ø-1¡£
-#define _syscall0(type,name) \
-type name(void) \
-{ \
-	volatile long __res; \
-	_asm {  /* ÊäÈëÎªÏµÍ³ÖĞ¶Ïµ÷ÓÃºÅ__NR_name*/\
-		_asm mov eax,__NR_##name\
-		_asm int 80h /* µ÷ÓÃÏµÍ³ÖĞ¶Ï0x80¡£*/\
-		_asm mov __res,eax /* ·µ»ØÖµ??eax(__res)*/\
-	} \
-    if (__res >= 0) 		/* Èç¹û·µ»ØÖµ>=0£¬ÔòÖ±½Ó·µ»Ø¸ÃÖµ¡£*/\
-		return (type) __res; \
-	errno = -__res; 	/* ·ñÔòÖÃ³ö´íºÅ£¬²¢·µ»Ø-1¡£*/\
-	return -1; \
-}
-/*
-#define _syscall0(type,name) \
-type name(void) \
-{ \
-long __res; \
-__asm__ volatile ("int $0x80" \
-	: "=a" (__res) \
-	: "0" (__NR_##name)); \
-if (__res >= 0) \
-	return (type) __res; \
-errno = -__res; \
-return -1; \
-}*/
-
-// ÓĞ1 ¸ö²ÎÊıµÄÏµÍ³µ÷ÓÃºêº¯Êı¡£type name(atype a)
-// %0 - eax(__res)£¬%1 - eax(__NR_name)£¬%2 - ebx(a)¡£
-#define _syscall1(type,name,atype,a) \
-type name(atype a) \
-{ \
-	volatile long __res; \
-	_asm {  /* ÊäÈëÎªÏµÍ³ÖĞ¶Ïµ÷ÓÃºÅ__NR_name*/\
-		_asm mov eax,__NR_##name \
-		_asm mov ebx,a \
-		_asm int 80h /* µ÷ÓÃÏµÍ³ÖĞ¶Ï0x80¡£*/\
-		_asm mov __res,eax /* ·µ»ØÖµ->eax(__res)*/\
-	} \
-	if (__res >= 0) \
-		return (type) __res; \
-	errno = -__res; \
-	return -1; \
-}
-/*#define _syscall1(type,name,atype,a) \
-type name(atype a) \
-{ \
-long __res; \
-__asm__ volatile ("int $0x80" \
-	: "=a" (__res) \
-	: "0" (__NR_##name),"b" ((long)(a))); \
-if (__res >= 0) \
-	return (type) __res; \
-errno = -__res; \
-return -1; \
-}*/
-
-// ÓĞ2 ¸ö²ÎÊıµÄÏµÍ³µ÷ÓÃºêº¯Êı¡£type name(atype a, btype b)
-// %0 - eax(__res)£¬%1 - eax(__NR_name)£¬%2 - ebx(a)£¬%3 - ecx(b)¡£
-#define _syscall2(type,name,atype,a,btype,b) \
-type name(atype a,btype b) \
-{ \
-	volatile long __res; \
-	_asm {  /* ÊäÈëÎªÏµÍ³ÖĞ¶Ïµ÷ÓÃºÅ__NR_name*/\
-		_asm mov eax,__NR_##name \
-		_asm mov ebx,a \
-		_asm mov ecx,b \
-		_asm int 80h /* µ÷ÓÃÏµÍ³ÖĞ¶Ï0x80¡£*/\
-		_asm mov __res,eax /* ·µ»ØÖµ??eax(__res)*/\
-	} \
-    if (__res >= 0) 		/* Èç¹û·µ»ØÖµ>=0£¬ÔòÖ±½Ó·µ»Ø¸ÃÖµ¡£*/\
-		return (type) __res; \
-	errno = -__res; 	/* ·ñÔòÖÃ³ö´íºÅ£¬²¢·µ»Ø-1¡£*/\
-	return -1; \
-}
-/*#define _syscall2(type,name,atype,a,btype,b) \
-type name(atype a,btype b) \
-{ \
-long __res; \
-__asm__ volatile ("int $0x80" \
-	: "=a" (__res) \
-	: "0" (__NR_##name),"b" ((long)(a)),"c" ((long)(b))); \
-if (__res >= 0) \
-	return (type) __res; \
-errno = -__res; \
-return -1; \
-}*/
-
-// ÓĞ3 ¸ö²ÎÊıµÄÏµÍ³µ÷ÓÃºêº¯Êı¡£type name(atype a, btype b, ctype c)
-// %0 - eax(__res)£¬%1 - eax(__NR_name)£¬%2 - ebx(a)£¬%3 - ecx(b)£¬%4 - edx(c)¡£
-#define _syscall3(type,name,atype,a,btype,b,ctype,c) \
-type name(atype a,btype b,ctype c) \
-{ \
-	volatile long __res; \
-	_asm {  /* ÊäÈëÎªÏµÍ³ÖĞ¶Ïµ÷ÓÃºÅ__NR_name*/\
-		_asm mov eax,__NR_##name \
-		_asm mov ebx,a \
-		_asm mov ecx,b \
-		_asm mov edx,c \
-		_asm int 80h /* µ÷ÓÃÏµÍ³ÖĞ¶Ï0x80¡£*/\
-		_asm mov __res,eax /* ·µ»ØÖµ??eax(__res)*/\
-	} \
-    if (__res >= 0) 		/* Èç¹û·µ»ØÖµ>=0£¬ÔòÖ±½Ó·µ»Ø¸ÃÖµ¡£*/\
-		return (type) __res; \
-	errno = -__res; 	/* ·ñÔòÖÃ³ö´íºÅ£¬²¢·µ»Ø-1¡£*/\
-	return -1; \
-}
-/*#define _syscall3(type,name,atype,a,btype,b,ctype,c) \
-type name(atype a,btype b,ctype c) \
-{ \
-long __res; \
-__asm__ volatile ("int $0x80" \
-	: "=a" (__res) \
-	: "0" (__NR_##name),"b" ((long)(a)),"c" ((long)(b)),"d" ((long)(c))); \
-if (__res>=0) \
-	return (type) __res; \
-errno=-__res; \
-return -1; \
-}*/
-
-#endif /* __LIBRARY__ */
-
-extern int errno;		// ³ö´íºÅ£¬È«¾Ö±äÁ¿¡£
-
-// ¶ÔÓ¦¸÷ÏµÍ³µ÷ÓÃµÄº¯ÊıÔ­ĞÍ¶¨Òå¡£
-	int access(const char * filename, mode_t mode);
-	int acct(const char * filename);
-	int alarm(int sec);
-	int brk(void * end_data_segment);
-	void * sbrk(ptrdiff_t increment);
-	int chdir(const char * filename);
-	int chmod(const char * filename, mode_t mode);
-	int chown(const char * filename, uid_t owner, gid_t group);
-	int chroot(const char * filename);
-	int close(int fildes);
-	int creat(const char * filename, mode_t mode);
-	int dup(int fildes);
-	int execve(const char * filename, char ** argv, char ** envp);
-	int execv(const char * pathname, char ** argv);
-	int execvp(const char * file, char ** argv);
-	int execl(const char * pathname, char * arg0, ...);
-	int execlp(const char * file, char * arg0, ...);
-	int execle(const char * pathname, char * arg0, ...);
+#endif
 	void exit(int status);
 	void _exit(int status);
 	int fcntl(int fildes, int cmd, ...);

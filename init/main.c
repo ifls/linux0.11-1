@@ -253,17 +253,21 @@ void init(void)
 			continue;
 		}
 		if (!pid) {
+			// 子进程
 			close(0);close(1);close(2);
+			// 设置会话id
 			setsid();
 			(void) open("/dev/tty0",O_RDWR,0);
 			(void) dup(0);
 			(void) dup(0);
 			_exit(execve("/bin/sh",argv,envp));
 		}
+		// 等待子进程退出
 		while (1)
 			if (pid == wait(&i))
 				break;
 		printf("\n\rchild %d died with code %04x\n\r",pid,i);
+		// 把缓冲区里的内存 持久化到硬盘
 		sync();
 	}
 	_exit(0);	/* NOTE! _exit, not exit() */

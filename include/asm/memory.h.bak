@@ -1,35 +1,34 @@
+// ä¸çŸ¥é“ä¸ºä»€ä¹ˆåœ¨è¿™é‡Œå®šä¹‰memcpyï¼Œstring.hæ–‡ä»¶é‡Œå·²ç»æœ‰ä¸€ä¸ªäº†ã€‚
 /*
-* NOTE!!! memcpy(dest,src,n) assumes ds=es=normal data segment. This
-* goes for all kernel functions (ds=es=kernel space, fs=local data,
-* gs=null), as well as for all well-behaving user programs (ds=es=
-* user data space). This is NOT a bug, as any user program that changes
-* es deserves to die if it isn't careful.
+* æ³¨æ„!!!memcpy(dest,src,n)å‡è®¾æ®µå¯„å­˜å™¨ds=es=é€šå¸¸æ•°æ®æ®µã€‚åœ¨å†…æ ¸ä¸­ä½¿ç”¨çš„
+* æ‰€æœ‰å‡½æ•°éƒ½åŸºäºè¯¥å‡è®¾ï¼ˆds=es=å†…æ ¸ç©ºé—´ï¼Œfs=å±€éƒ¨æ•°æ®ç©ºé—´ï¼Œgs=nullï¼‰,å…·æœ‰è‰¯å¥½
+* è¡Œä¸ºçš„åº”ç”¨ç¨‹åºä¹Ÿæ˜¯è¿™æ ·ï¼ˆds=es=ç”¨æˆ·æ•°æ®ç©ºé—´ï¼‰ã€‚å¦‚æœä»»ä½•ç”¨æˆ·ç¨‹åºéšæ„æ”¹åŠ¨äº†
+* es å¯„å­˜å™¨è€Œå‡ºé”™ï¼Œåˆ™å¹¶ä¸æ˜¯ç”±äºç³»ç»Ÿç¨‹åºé”™è¯¯é€ æˆçš„ã€‚
 */
-/*
-* ×¢Òâ!!!memcpy(dest,src,n)¼ÙÉè¶Î¼Ä´æÆ÷ds=es=Í¨³£Êı¾İ¶Î¡£ÔÚÄÚºËÖĞÊ¹ÓÃµÄ
-* ËùÓĞº¯Êı¶¼»ùÓÚ¸Ã¼ÙÉè£¨ds=es=ÄÚºË¿Õ¼ä£¬fs=¾Ö²¿Êı¾İ¿Õ¼ä£¬gs=null£©,¾ßÓĞÁ¼ºÃ
-* ĞĞÎªµÄÓ¦ÓÃ³ÌĞòÒ²ÊÇÕâÑù£¨ds=es=ÓÃ»§Êı¾İ¿Õ¼ä£©¡£Èç¹ûÈÎºÎÓÃ»§³ÌĞòËæÒâ¸Ä¶¯ÁË
-* es ¼Ä´æÆ÷¶ø³ö´í£¬Ôò²¢²»ÊÇÓÉÓÚÏµÍ³³ÌĞò´íÎóÔì³ÉµÄ¡£
-*/
-//// ÄÚ´æ¿é¸´ÖÆ¡£´ÓÔ´µØÖ·src ´¦¿ªÊ¼¸´ÖÆn ¸ö×Ö½Úµ½Ä¿µÄµØÖ·dest ´¦¡£
-// ²ÎÊı£ºdest - ¸´ÖÆµÄÄ¿µÄµØÖ·£¬src - ¸´ÖÆµÄÔ´µØÖ·£¬n - ¸´ÖÆ×Ö½ÚÊı¡£
-// %0 - edi(Ä¿µÄµØÖ·dest)£¬%1 - esi(Ô´µØÖ·src)£¬%2 - ecx(×Ö½ÚÊın)£¬
-/*extern _inline char* memcpy(char * dest, char * src, int n)
+//// å†…å­˜å—å¤åˆ¶ã€‚ä»æºåœ°å€src å¤„å¼€å§‹å¤åˆ¶n ä¸ªå­—èŠ‚åˆ°ç›®çš„åœ°å€dest å¤„ã€‚
+// å‚æ•°ï¼šdest - å¤åˆ¶çš„ç›®çš„åœ°å€ï¼Œsrc - å¤åˆ¶çš„æºåœ°å€ï¼Œn - å¤åˆ¶å­—èŠ‚æ•°ã€‚
+// %0 - edi(ç›®çš„åœ°å€dest)ï¼Œ%1 - esi(æºåœ°å€src)ï¼Œ%2 - ecx(å­—èŠ‚æ•°n)ï¼Œ
+/*extern _inline void* memcpy(void * dest, const void * src, int n)
 {
-	char * __res;
 	_asm{
-		mov edi,dest
+		pushf
 		mov esi,src
-		mov ecx,n	// ¹²¸´ÖÆecx(n)×Ö½Ú¡£
+		mov edi,dest
+		mov ecx,n	// å…±å¤åˆ¶ecx(n)å­—èŠ‚ã€‚
 		cld
-		rep movsb // ´Óds:[esi]¸´ÖÆµ½es:[edi]£¬²¢ÇÒesi++£¬edi++¡£
-		mov __res,edi
+		rep movsb // ä»ds:[esi]å¤åˆ¶åˆ°es:[edi]ï¼Œå¹¶ä¸”esi++ï¼Œedi++ã€‚
+		popf
 	}
-	return __res;
+	return dest;
 }
 #define memcpy(dest,src,n) ({ \
 void * _res = dest; \
 __asm__ ( "cld;rep;movsb" \
+:: "D" ((long)(_res)), "S" ((long)(src)), "c" ((long) (n)) \
+: "di", "si", "cx"); \
+_res; \
+})*/
+
 :: "D" ((long)(_res)), "S" ((long)(src)), "c" ((long) (n)) \
 : "di", "si", "cx"); \
 _res; \

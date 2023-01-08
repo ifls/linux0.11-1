@@ -1,40 +1,40 @@
-//// ¶ÁÈ¡fs ¶ÎÖĞÖ¸¶¨µØÖ·´¦µÄ×Ö½Ú¡£
-// ²ÎÊı£ºaddr - Ö¸¶¨µÄÄÚ´æµØÖ·¡£
-// %0 - (·µ»ØµÄ×Ö½Ú_v)£»%1 - (ÄÚ´æµØÖ·addr)¡£
-// ·µ»Ø£º·µ»ØÄÚ´æfs:[addr]´¦µÄ×Ö½Ú¡£
-extern _inline unsigned char
-get_fs_byte (const char *addr)
+/*
+* NOTE!!! memcpy(dest,src,n) assumes ds=es=normal data segment. This
+* goes for all kernel functions (ds=es=kernel space, fs=local data,
+* gs=null), as well as for all well-behaving user programs (ds=es=
+* user data space). This is NOT a bug, as any user program that changes
+* es deserves to die if it isn't careful.
+*/
+/*
+* æ³¨æ„!!!memcpy(dest,src,n)å‡è®¾æ®µå¯„å­˜å™¨ds=es=é€šå¸¸æ•°æ®æ®µã€‚åœ¨å†…æ ¸ä¸­ä½¿ç”¨çš„
+* æ‰€æœ‰å‡½æ•°éƒ½åŸºäºè¯¥å‡è®¾ï¼ˆds=es=å†…æ ¸ç©ºé—´ï¼Œfs=å±€éƒ¨æ•°æ®ç©ºé—´ï¼Œgs=nullï¼‰,å…·æœ‰è‰¯å¥½
+* è¡Œä¸ºçš„åº”ç”¨ç¨‹åºä¹Ÿæ˜¯è¿™æ ·ï¼ˆds=es=ç”¨æˆ·æ•°æ®ç©ºé—´ï¼‰ã€‚å¦‚æœä»»ä½•ç”¨æˆ·ç¨‹åºéšæ„æ”¹åŠ¨äº†
+* es å¯„å­˜å™¨è€Œå‡ºé”™ï¼Œåˆ™å¹¶ä¸æ˜¯ç”±äºç³»ç»Ÿç¨‹åºé”™è¯¯é€ æˆçš„ã€‚
+*/
+//// å†…å­˜å—å¤åˆ¶ã€‚ä»æºåœ°å€src å¤„å¼€å§‹å¤åˆ¶n ä¸ªå­—èŠ‚åˆ°ç›®çš„åœ°å€dest å¤„ã€‚
+// å‚æ•°ï¼šdest - å¤åˆ¶çš„ç›®çš„åœ°å€ï¼Œsrc - å¤åˆ¶çš„æºåœ°å€ï¼Œn - å¤åˆ¶å­—èŠ‚æ•°ã€‚
+// %0 - edi(ç›®çš„åœ°å€dest)ï¼Œ%1 - esi(æºåœ°å€src)ï¼Œ%2 - ecx(å­—èŠ‚æ•°n)ï¼Œ
+/*extern _inline char* memcpy(char * dest, char * src, int n)
 {
-//  unsigned register char _v;
-
-// __asm__ ("movb %%fs:%1,%0": "=r" (_v):"m" (*addr));
-  _asm mov ebx,addr
-  _asm mov al,byte ptr fs:[ebx];
-//  _asm mov _v,al;
-//  return _v;
+	char * __res;
+	_asm{
+		mov edi,dest
+		mov esi,src
+		mov ecx,n	// å…±å¤åˆ¶ecx(n)å­—èŠ‚ã€‚
+		cld
+		rep movsb // ä»ds:[esi]å¤åˆ¶åˆ°es:[edi]ï¼Œå¹¶ä¸”esi++ï¼Œedi++ã€‚
+		mov __res,edi
+	}
+	return __res;
 }
+#define memcpy(dest,src,n) ({ \
+void * _res = dest; \
+__asm__ ( "cld;rep;movsb" \
+:: "D" ((long)(_res)), "S" ((long)(src)), "c" ((long) (n)) \
+: "di", "si", "cx"); \
+_res; \
+})*/
 
-//// ¶ÁÈ¡fs ¶ÎÖĞÖ¸¶¨µØÖ·´¦µÄ×Ö¡£
-// ²ÎÊı£ºaddr - Ö¸¶¨µÄÄÚ´æµØÖ·¡£
-// %0 - (·µ»ØµÄ×Ö_v)£»%1 - (ÄÚ´æµØÖ·addr)¡£
-// ·µ»Ø£º·µ»ØÄÚ´æfs:[addr]´¦µÄ×Ö¡£
-extern _inline unsigned short
-get_fs_word (const unsigned short *addr)
-{
-//  unsigned short _v;
-
-//__asm__ ("movw %%fs:%1,%0": "=r" (_v):"m" (*addr));
-  _asm mov ebx,addr
-  _asm mov ax,word ptr fs:[ebx];
-//  _asm mov _v,ax;
-//  return _v;
-}
-
-//// ¶ÁÈ¡fs ¶ÎÖĞÖ¸¶¨µØÖ·´¦µÄ³¤×Ö(4 ×Ö½Ú)¡£
-// ²ÎÊı£ºaddr - Ö¸¶¨µÄÄÚ´æµØÖ·¡£
-// %0 - (·µ»ØµÄ³¤×Ö_v)£»%1 - (ÄÚ´æµØÖ·addr)¡£
-// ·µ»Ø£º·µ»ØÄÚ´æfs:[addr]´¦µÄ³¤×Ö¡£
-extern _inline unsigned long
 get_fs_long (const unsigned long *addr)
 {
 //  unsigned long _v;
@@ -46,9 +46,9 @@ get_fs_long (const unsigned long *addr)
 //  return _v;
 }
 
-//// ½«Ò»×Ö½Ú´æ·ÅÔÚfs ¶ÎÖĞÖ¸¶¨ÄÚ´æµØÖ·´¦¡£
-// ²ÎÊı£ºval - ×Ö½ÚÖµ£»addr - ÄÚ´æµØÖ·¡£
-// %0 - ¼Ä´æÆ÷(×Ö½ÚÖµval)£»%1 - (ÄÚ´æµØÖ·addr)¡£
+//// ï¿½ï¿½Ò»ï¿½Ö½Ú´ï¿½ï¿½ï¿½ï¿½fs ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½Ú´ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½val - ï¿½Ö½ï¿½Öµï¿½ï¿½addr - ï¿½Ú´ï¿½ï¿½Ö·ï¿½ï¿½
+// %0 - ï¿½Ä´ï¿½ï¿½ï¿½(ï¿½Ö½ï¿½Öµval)ï¿½ï¿½%1 - (ï¿½Ú´ï¿½ï¿½Ö·addr)ï¿½ï¿½
 extern _inline void
 put_fs_byte (char val, char *addr)//passed
 {
@@ -58,9 +58,9 @@ put_fs_byte (char val, char *addr)//passed
 	_asm mov byte ptr fs:[ebx],al;
 }
 
-//// ½«Ò»×Ö´æ·ÅÔÚfs ¶ÎÖĞÖ¸¶¨ÄÚ´æµØÖ·´¦¡£
-// ²ÎÊı£ºval - ×ÖÖµ£»addr - ÄÚ´æµØÖ·¡£
-// %0 - ¼Ä´æÆ÷(×ÖÖµval)£»%1 - (ÄÚ´æµØÖ·addr)¡£
+//// ï¿½ï¿½Ò»ï¿½Ö´ï¿½ï¿½ï¿½ï¿½fs ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½Ú´ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½val - ï¿½ï¿½Öµï¿½ï¿½addr - ï¿½Ú´ï¿½ï¿½Ö·ï¿½ï¿½
+// %0 - ï¿½Ä´ï¿½ï¿½ï¿½(ï¿½ï¿½Öµval)ï¿½ï¿½%1 - (ï¿½Ú´ï¿½ï¿½Ö·addr)ï¿½ï¿½
 extern _inline void
 put_fs_word (short val, short *addr)
 {
@@ -70,9 +70,9 @@ put_fs_word (short val, short *addr)
 	_asm mov word ptr fs:[ebx],ax;
 }
 
-//// ½«Ò»³¤×Ö´æ·ÅÔÚfs ¶ÎÖĞÖ¸¶¨ÄÚ´æµØÖ·´¦¡£
-// ²ÎÊı£ºval - ³¤×ÖÖµ£»addr - ÄÚ´æµØÖ·¡£
-// %0 - ¼Ä´æÆ÷(³¤×ÖÖµval)£»%1 - (ÄÚ´æµØÖ·addr)¡£
+//// ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ö´ï¿½ï¿½ï¿½ï¿½fs ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½Ú´ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½val - ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½addr - ï¿½Ú´ï¿½ï¿½Ö·ï¿½ï¿½
+// %0 - ï¿½Ä´ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½Öµval)ï¿½ï¿½%1 - (ï¿½Ú´ï¿½ï¿½Ö·addr)ï¿½ï¿½
 extern _inline void
 put_fs_long (long val, unsigned long *addr)
 {
@@ -83,14 +83,14 @@ put_fs_long (long val, unsigned long *addr)
 }
 
 /*
-* ±ÈÎÒ¸ü¶®GNU »ã±àµÄÈËÓ¦¸Ã×ĞÏ¸¼ì²éÏÂÃæµÄ´úÂë¡£ÕâĞ©´úÂëÄÜÊ¹ÓÃ£¬µ«ÎÒ²»ÖªµÀÊÇ·ñ
-* º¬ÓĞÒ»Ğ©Ğ¡´íÎó¡£
-* --- TYT£¬1991 Äê11 ÔÂ24 ÈÕ
-* [ ÕâĞ©´úÂëÃ»ÓĞ´íÎó£¬Linus ]
+* ï¿½ï¿½ï¿½Ò¸ï¿½ï¿½ï¿½GNU ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä´ï¿½ï¿½ë¡£ï¿½ï¿½Ğ©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½Ã£ï¿½ï¿½ï¿½ï¿½Ò²ï¿½Öªï¿½ï¿½ï¿½Ç·ï¿½
+* ï¿½ï¿½ï¿½ï¿½Ò»Ğ©Ğ¡ï¿½ï¿½ï¿½ï¿½
+* --- TYTï¿½ï¿½1991 ï¿½ï¿½11 ï¿½ï¿½24 ï¿½ï¿½
+* [ ï¿½ï¿½Ğ©ï¿½ï¿½ï¿½ï¿½Ã»ï¿½Ğ´ï¿½ï¿½ï¿½Linus ]
 */
 
-//// È¡fs ¶Î¼Ä´æÆ÷Öµ(Ñ¡Ôñ·û)¡£
-// ·µ»Ø£ºfs ¶Î¼Ä´æÆ÷Öµ¡£
+//// È¡fs ï¿½Î¼Ä´ï¿½ï¿½ï¿½Öµ(Ñ¡ï¿½ï¿½ï¿½)ï¿½ï¿½
+// ï¿½ï¿½ï¿½Ø£ï¿½fs ï¿½Î¼Ä´ï¿½ï¿½ï¿½Öµï¿½ï¿½
 extern _inline unsigned short
 get_fs ()
 {
@@ -101,8 +101,8 @@ get_fs ()
 //  return _v;
 }
 
-//// È¡ds ¶Î¼Ä´æÆ÷Öµ¡£
-// ·µ»Ø£ºds ¶Î¼Ä´æÆ÷Öµ¡£
+//// È¡ds ï¿½Î¼Ä´ï¿½ï¿½ï¿½Öµï¿½ï¿½
+// ï¿½ï¿½ï¿½Ø£ï¿½ds ï¿½Î¼Ä´ï¿½ï¿½ï¿½Öµï¿½ï¿½
 extern _inline unsigned short
 get_ds ()
 {
@@ -113,8 +113,8 @@ get_ds ()
 //  return _v;
 }
 
-//// ÉèÖÃfs ¶Î¼Ä´æÆ÷¡£
-// ²ÎÊı£ºval - ¶ÎÖµ£¨Ñ¡Ôñ·û£©¡£
+//// ï¿½ï¿½ï¿½ï¿½fs ï¿½Î¼Ä´ï¿½ï¿½ï¿½ï¿½ï¿½
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½val - ï¿½ï¿½Öµï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 extern _inline void
 set_fs (unsigned long val)
 {
