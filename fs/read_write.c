@@ -1,81 +1,80 @@
 /* passed
-* linux/fs/read_write.c
+* linux/fs/stat.c
 *
 * (C) 1991 Linus Torvalds
 */
 #include <set_seg.h>
 
-#include <sys/stat.h>		// 文件状态头文件。含有文件或文件系统状态结构stat{}和常量。
 #include <errno.h>		// 错误号头文件。包含系统中各种出错号。(Linus 从minix 中引进的)。
-#include <sys/types.h>		// 类型头文件。定义了基本的系统数据类型。
+#include <sys/stat.h>		// 文件状态头文件。含有文件或文件系统状态结构stat{}和常量。
 
-#include <linux/kernel.h>	// 内核头文件。含有一些内核常用函数的原形定义。
+#include <linux/fs.h>		// 文件系统头文件。定义文件表结构（file,buffer_head,m_inode 等）。
 #include <linux/sched.h>	// 调度程序头文件，定义了任务结构task_struct、初始任务0 的数据，
 // 还有一些有关描述符参数设置和获取的嵌入式汇编函数宏语句。
+#include <linux/kernel.h>	// 内核头文件。含有一些内核常用函数的原形定义。
 #include <asm/segment.h>	// 段操作头文件。定义了有关段寄存器操作的嵌入式汇编函数。
 
-// 字符设备读写函数。
-extern int rw_char (int rw, int dev, char *buf, int count, off_t * pos);
-// 读管道操作函数。
-extern int read_pipe (struct m_inode *inode, char *buf, int count);
-// 写管道操作函数。
-extern int write_pipe (struct m_inode *inode, char *buf, int count);
-// 块设备读操作函数。
-extern int block_read (int dev, off_t * pos, char *buf, int count);
-// 块设备写操作函数。
-extern int block_write (int dev, off_t * pos, char *buf, int count);
-// 读文件操作函数。
-extern int file_read (struct m_inode *inode, struct file *filp,
-		      char *buf, int count);
-// 写文件操作函数。
-extern int file_write (struct m_inode *inode, struct file *filp,
-		       char *buf, int count);
-
-//// 重定位文件读写指针系统调用函数。
-// 参数fd 是文件句柄，offset 是新的文件读写指针偏移值，origin 是偏移的起始位置，是SEEK_SET
-// (0，从文件开始处)、SEEK_CUR(1，从当前读写位置)、SEEK_END(2，从文件尾处)三者之一。
-int sys_lseek (unsigned int fd, off_t offset, int origin)
+//// 复制文件状态信息。
+// 参数inode 是文件对应的i 节点，statbuf 是stat 文件状态结构指针，用于存放取得的状态信息。
+static void
+cp_stat (struct m_inode *inode, struct stat *statbuf)
 {
-	struct file *file;
-	int tmp;
+	struct stat tmp;
+	int i;
 
-// 如果文件句柄值大于程序最多打开文件数NR_OPEN(20)，或者该句柄的文件结构指针为空，或者
-// 对应文件结构的i 节点字段为空，或者指定设备文件指针是不可定位的，则返回出错码并退出。
-	if (fd >= NR_OPEN || !(file = current->filp[fd]) || !(file->f_inode)
-			|| !IS_SEEKABLE (MAJOR (file->f_inode->i_dev)))
+// 首先验证(或分配)存放数据的内存空间。
+	verify_area (statbuf, sizeof (*statbuf));
+// 然后临时复制相应节点上的信息。
+	tmp.st_dev = inode->i_dev;	// 文件所在的设备号。
+	tmp.st_ino = inode->i_num;	// 文件i 节点号。
+	tmp.st_mode = inode->i_mode;	// 文件属性。
+	tmp.st_nlink = inode->i_nlinks;	// 文件的连接数。
+	tmp.st_uid = inode->i_uid;	// 文件的用户id。
+	tmp.st_gid = inode->i_gid;	// 文件的组id。
+	tmp.st_rdev = inode->i_zone[0];	// 设备号(如果文件是特殊的字符文件或块文件)。
+	tmp.st_size = inode->i_size;	// 文件大小（字节数）（如果文件是常规文件）。
+	tmp.st_atime = inode->i_atime;	// 最后访问时间。
+	tmp.st_mtime = inode->i_mtime;	// 最后修改时间。
+	tmp.st_ctime = inode->i_ctime;	// 最后节点修改时间。
+// 最后将这些状态信息复制到用户缓冲区中。
+	for (i = 0; i < sizeof (tmp); i++)
+		put_fs_byte (((char *) &tmp)[i], &((char *) statbuf)[i]);
+}
+
+//// 文件状态系统调用函数 - 根据文件名获取文件状态信息。
+// 参数filename 是指定的文件名，statbuf 是存放状态信息的缓冲区指针。
+// 返回0，若出错则返回出错码。
+int
+sys_stat (char *filename, struct stat *statbuf)
+{
+	struct m_inode *inode;
+
+// 首先根据文件名找出对应的i 节点，若出错则返回错误码。
+	if (!(inode = namei (filename)))
+		return -ENOENT;
+// 将i 节点上的文件状态信息复制到用户缓冲区中，并释放该i 节点。
+	cp_stat (inode, statbuf);
+	iput (inode);
+	return 0;
+}
+
+//// 文件状态系统调用 - 根据文件句柄获取文件状态信息。
+// 参数fd 是指定文件的句柄(描述符)，statbuf 是存放状态信息的缓冲区指针。
+// 返回0，若出错则返回出错码。
+int
+sys_fstat (unsigned int fd, struct stat *statbuf)
+{
+	struct file *f;
+	struct m_inode *inode;
+
+// 如果文件句柄值大于一个程序最多打开文件数NR_OPEN，或者该句柄的文件结构指针为空，或者
+// 对应文件结构的i 节点字段为空，则出错，返回出错码并退出。
+	if (fd >= NR_OPEN || !(f = current->filp[fd]) || !(inode = f->f_inode))
 		return -EBADF;
-// 如果文件对应的i 节点是管道节点，则返回出错码，退出。管道头尾指针不可随意移动！
-	if (file->f_inode->i_pipe)
-		return -ESPIPE;
-// 根据设置的定位标志，分别重新定位文件读写指针。
-	switch (origin)
-	{
-// origin = SEEK_SET，要求以文件起始处作为原点设置文件读写指针。若偏移值小于零，则出错返
-// 回错误码。否则设置文件读写指针等于offset。
-	case 0:
-		if (offset < 0)
-			return -EINVAL;
-		file->f_pos = offset;
-		break;
-// origin = SEEK_CUR，要求以文件当前读写指针处作为原点重定位读写指针。如果文件当前指针加
-// 上偏移值小于0，则返回出错码退出。否则在当前读写指针上加上偏移值。
-	case 1:
-		if (file->f_pos + offset < 0)
-			return -EINVAL;
-		file->f_pos += offset;
-		break;
-// origin = SEEK_END，要求以文件末尾作为原点重定位读写指针。此时若文件大小加上偏移值小于零
-// 则返回出错码退出。否则重定位读写指针为文件长度加上偏移值。
-	case 2:
-		if ((tmp = file->f_inode->i_size + offset) < 0)
-			return -EINVAL;
-		file->f_pos = tmp;
-		break;
-// origin 设置出错，返回出错码退出。
-	default:
-		return -EINVAL;
-	}
-	return file->f_pos;		// 返回重定位后的文件读写指针值。
+// 将i 节点上的文件状态信息复制到用户缓冲区中。
+	cp_stat (inode, statbuf);
+	return 0;
+}
 }
 
 //// 读文件系统调用函数。
